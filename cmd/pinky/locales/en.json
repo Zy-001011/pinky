@@ -702,9 +702,23 @@
   "@addPhoneOlderHelperDetail": {
     "description": "Add phone › older iPhone: under \"Install the Pinky helper\", what the helper is and how long its signature lasts. WebDriverAgent is a name."
   },
+  "addPhoneOlderHelperWaiting": "Switching {name} to the Pinky helper…",
+  "@addPhoneOlderHelperWaiting": {
+    "description": "Add phone › older iPhone: the status line, next to a spinner, after the person chooses the helper and before the iPhone reports that it is ready or what it still needs. name is the iPhone's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "iPhone 13 mini"
+      }
+    }
+  },
   "addPhoneOlderIPhone": "Try an older iPhone",
   "@addPhoneOlderIPhone": {
     "description": "Add phone › iPhone: the quiet button to the right of Pair that switches to the ways of connecting an older iPhone."
+  },
+  "addPhoneOlderMirrorMacOnly": "iPhone Mirroring works on a Mac only. On this computer, choose Install the Pinky helper.",
+  "@addPhoneOlderMirrorMacOnly": {
+    "description": "Add phone › older iPhone, on Windows and Linux: shown once the person picks iPhone Mirroring. It names the helper choice (\"Install the Pinky helper\") so they pick that instead. iPhone Mirroring is macOS's name."
   },
   "addPhoneOlderMirroring": "Use iPhone Mirroring (this Mac only)",
   "@addPhoneOlderMirroring": {
@@ -714,9 +728,13 @@
   "@addPhoneOlderMirroringDetail": {
     "description": "Add phone › older iPhone: under \"Use iPhone Mirroring\", its drawback."
   },
-  "addPhoneOlderNotYet": "This build can't set that up yet: the gateway's iOS backends for older iPhones come in M3.",
+  "addPhoneOlderNotYet": "iPhone Mirroring isn't set up from this screen. Install the Pinky helper to connect an older iPhone.",
   "@addPhoneOlderNotYet": {
-    "description": "Add phone › older iPhone: shown once the person picks a way to connect, as neither works in this build yet. M3 is a milestone of the project."
+    "description": "Add phone › older iPhone, on a Mac: shown once the person picks iPhone Mirroring, which this screen does not set up. It points them to the helper, which does connect an older iPhone."
+  },
+  "addPhoneOlderPlugIn": "Plug the iPhone in with a cable. Pinky sets up the helper on the iPhone it finds, including one already in your list.",
+  "@addPhoneOlderPlugIn": {
+    "description": "Add phone › older iPhone: the status line after the person chooses the helper when no iPhone is connected, asking them to plug one in."
   },
   "addPhoneOlderTitle": "This iPhone needs one more step",
   "@addPhoneOlderTitle": {

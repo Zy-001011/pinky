@@ -19,6 +19,7 @@ type addState struct {
 	known    map[string]bool
 	old      bool   // the older-iPhone path
 	oldPick  string // "helper" or "mirror"
+	oldSet   string // the phone SetConnection("wda") was asked for, so it is not asked every frame
 	tryAgain bool
 	pair     pairState // pairing an Android phone over Wi-Fi
 
@@ -80,12 +81,14 @@ func (a *app) addPhonePage(c *mg.Context) {
 					case "qr", "tailnet":
 						s.step = "android"
 					default:
-						s.step, s.old, s.oldPick, s.since = "choose", false, "", time.Time{}
+						s.step, s.since = "choose", time.Time{}
+						s.leaveOlder()
 					}
 					s.snapshot(a)
 				}
 				mg.Spacer(c)
 				if len(a.devices) > 0 && quietButton(c, locales.AddPhoneCancel()).Clicked() {
+					s.leaveOlder()
 					a.page = pagePhones
 				}
 			})
@@ -349,19 +352,28 @@ func (a *app) pairConnectForm(c *mg.Context) {
 	})
 }
 
+// leaveOlder clears the older-iPhone path. Back, Cancel and leaving Add
+// phone all call it, so the next visit does not keep a choice or skip
+// SetConnection.
+func (s *addState) leaveOlder() {
+	s.old, s.oldPick, s.oldSet = false, "", ""
+}
+
 func (a *app) addIPhone(c *mg.Context) {
 	p := pal(c)
 	s := &a.add
-	d := s.fresh(a, driver.IOS)
 	if !s.old {
 		a.addIPhoneSteps(c)
 		return
 	}
+	// A phone already in the list is not "fresh": follow it the same way
+	// the iPhone steps do (iphoneFollowed), including one that is ready.
+	d, _ := s.iphoneFollowed(a)
 	heading(c, locales.AddPhoneIPhoneTitle(), locales.AddPhoneOlderDetail())
-	if d != nil {
+	if d != nil && d.Info.State != driver.StateOffline {
 		statusBox(c, func() {
 			dot(c, p.amberDot, false)
-			mg.Text(c, strings.TrimSpace(locales.AddPhoneFoundIOS(d.Info.Name, d.Info.OSVersion)))
+			mg.Text(c, strings.TrimSpace(locales.AddPhoneFoundIOS(d.Info.Name, d.Info.OSVersion))).Grow(1).MinWidth(0)
 		})
 	}
 	mg.Column(c).Padding(16, 18).Radius(12).Background(p.amberTint).Border(1, p.amberLine).Gap(10).Children(func() {
@@ -384,11 +396,95 @@ func (a *app) addIPhone(c *mg.Context) {
 		opt("helper", locales.AddPhoneOlderHelper(), locales.AddPhoneOlderHelperDetail())
 		opt("mirror", locales.AddPhoneOlderMirroring(), locales.AddPhoneOlderMirroringDetail())
 	})
-	if s.oldPick != "" {
-		mg.Text(c, locales.AddPhoneOlderNotYet()).FontSize(13.5).TextColor(p.ink2)
-	} else {
+	switch s.oldPick {
+	case "helper":
+		a.addOlderHelper(c, d)
+	case "mirror":
+		a.addOlderMirror(c)
+	default:
 		mg.Text(c, locales.AddPhoneOlderUpdate()).FontSize(13.5).TextColor(p.ink2).Margin(-6, 0, 0, 0)
 	}
+}
+
+// addOlderHelper connects the iPhone through the WebDriverAgent helper.
+// The phone is the one iphoneFollowed found: one plugged in since Add
+// phone opened, or one already in the list. With none, the person is asked
+// to plug it in. SetConnection runs once per phone (oldSet).
+func (a *app) addOlderHelper(c *mg.Context, d *gateway.DeviceView) {
+	p := pal(c)
+	s := &a.add
+	if d == nil || d.Info.State == driver.StateOffline {
+		statusBox(c, func() {
+			dot(c, p.amberDot, false)
+			mg.Text(c, locales.AddPhoneOlderPlugIn()).Grow(1).MinWidth(0)
+		})
+		return
+	}
+	if s.oldSet != d.Info.ID {
+		s.oldSet = d.Info.ID
+		a.setConnection(*d, "wda")
+	}
+	switch {
+	case d.Info.State == driver.StateOnline && d.Info.Backend == "wda":
+		statusBox(c, func() {
+			dot(c, p.green, false)
+			mg.Text(c, locales.AddPhoneReady(d.Info.Name)).FontWeight(600)
+		})
+		mg.Row(c).Children(func() {
+			if button(c, locales.AddPhoneDone(), btnOpt{kind: btnPrimary}).Clicked() {
+				a.selectPhone(d.Info.ID)
+				s.step = ""
+				s.leaveOlder()
+			}
+		})
+	case olderHelperMissing(*d):
+		// Missing, or its signature ran out: the checkup's words, and how
+		// to install it (checkup_iphone.go).
+		title, text, _ := setupWords(*d, driver.SetupInstallHelper)
+		if text == "" {
+			title, text = locales.CheckHelperTitle(), locales.CheckHelperMissing()
+		}
+		guideProblem(c, title, text)
+		mg.Row(c).Children(func() {
+			if linkButton(c, locales.CheckHelperHow()).Clicked() {
+				openURL(c, helperLink(*d), func(error) {})
+			}
+		})
+	case d.Info.State == driver.StateNeedsSetup || d.Info.State == driver.StateUnauthorized:
+		title, text, note := setupWords(*d, d.Info.Setup)
+		if title == "" {
+			title = locales.AddPhoneIPhoneStuck()
+			text = d.Info.Detail
+		}
+		guideProblem(c, title, text)
+		if note != "" {
+			guideNote(c, note)
+		}
+	default:
+		guideWaiting(c, locales.AddPhoneOlderHelperWaiting(d.Info.Name))
+	}
+}
+
+// olderHelperMissing reports that the helper path is waiting for
+// WebDriverAgent to be installed: the driver says so with
+// SetupInstallHelper, or the phone needs setup because the helper is not
+// installed.
+func olderHelperMissing(d gateway.DeviceView) bool {
+	if d.Info.Setup == driver.SetupInstallHelper {
+		return true
+	}
+	return d.Info.State == driver.StateNeedsSetup &&
+		strings.Contains(strings.ToLower(d.Info.Detail), "not installed")
+}
+
+// addOlderMirror is the iPhone Mirroring choice. It works on a Mac only,
+// and this screen does not pretend a connection was made.
+func (a *app) addOlderMirror(c *mg.Context) {
+	text := locales.AddPhoneOlderNotYet()
+	if guideOS != "darwin" {
+		text = locales.AddPhoneOlderMirrorMacOnly()
+	}
+	guideProblem(c, locales.AddPhoneOlderMirroring(), text)
 }
 
 func keepDigits(s string, n int) string {

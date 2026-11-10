@@ -2215,6 +2215,26 @@ func (msgs Messages) AddPhoneOlderHelperDetail() string {
 	return Catalog.Format(msgs.locale, "addPhoneOlderHelperDetail", nil)
 }
 
+// AddPhoneOlderHelperWaiting says "Switching {name} to the Pinky helper…"
+// in the language the app shows.
+//
+// Add phone › older iPhone: the status line, next to a spinner, after the
+// person chooses the helper and before the iPhone reports that it is ready
+// or what it still needs. name is the iPhone's name.
+func AddPhoneOlderHelperWaiting(name string) string {
+	return In(i18n.Locale()).AddPhoneOlderHelperWaiting(name)
+}
+
+// AddPhoneOlderHelperWaiting says "Switching {name} to the Pinky helper…"
+// in the language of msgs.
+//
+// Add phone › older iPhone: the status line, next to a spinner, after the
+// person chooses the helper and before the iPhone reports that it is ready
+// or what it still needs. name is the iPhone's name.
+func (msgs Messages) AddPhoneOlderHelperWaiting(name string) string {
+	return Catalog.Format(msgs.locale, "addPhoneOlderHelperWaiting", map[string]any{"name": name})
+}
+
 // AddPhoneOlderIPhone says "Try an older iPhone"
 // in the language the app shows.
 //
@@ -2229,6 +2249,24 @@ func AddPhoneOlderIPhone() string { return In(i18n.Locale()).AddPhoneOlderIPhone
 // to the ways of connecting an older iPhone.
 func (msgs Messages) AddPhoneOlderIPhone() string {
 	return Catalog.Format(msgs.locale, "addPhoneOlderIPhone", nil)
+}
+
+// AddPhoneOlderMirrorMacOnly says "iPhone Mirroring works on a Mac only. On this computer, choose Install the Pinky helper."
+// in the language the app shows.
+//
+// Add phone › older iPhone, on Windows and Linux: shown once the person
+// picks iPhone Mirroring. It names the helper choice ("Install the Pinky
+// helper") so they pick that instead. iPhone Mirroring is macOS's name.
+func AddPhoneOlderMirrorMacOnly() string { return In(i18n.Locale()).AddPhoneOlderMirrorMacOnly() }
+
+// AddPhoneOlderMirrorMacOnly says "iPhone Mirroring works on a Mac only. On this computer, choose Install the Pinky helper."
+// in the language of msgs.
+//
+// Add phone › older iPhone, on Windows and Linux: shown once the person
+// picks iPhone Mirroring. It names the helper choice ("Install the Pinky
+// helper") so they pick that instead. iPhone Mirroring is macOS's name.
+func (msgs Messages) AddPhoneOlderMirrorMacOnly() string {
+	return Catalog.Format(msgs.locale, "addPhoneOlderMirrorMacOnly", nil)
 }
 
 // AddPhoneOlderMirroring says "Use iPhone Mirroring (this Mac only)"
@@ -2263,20 +2301,38 @@ func (msgs Messages) AddPhoneOlderMirroringDetail() string {
 	return Catalog.Format(msgs.locale, "addPhoneOlderMirroringDetail", nil)
 }
 
-// AddPhoneOlderNotYet says "This build can't set that up yet: the gateway's iOS backends for older iPhones come in M3."
+// AddPhoneOlderNotYet says "iPhone Mirroring isn't set up from this screen. Install the Pinky helper to connect an older iPhone."
 // in the language the app shows.
 //
-// Add phone › older iPhone: shown once the person picks a way to connect,
-// as neither works in this build yet. M3 is a milestone of the project.
+// Add phone › older iPhone, on a Mac: shown once the person picks iPhone
+// Mirroring, which this screen does not set up. It points them to the
+// helper, which does connect an older iPhone.
 func AddPhoneOlderNotYet() string { return In(i18n.Locale()).AddPhoneOlderNotYet() }
 
-// AddPhoneOlderNotYet says "This build can't set that up yet: the gateway's iOS backends for older iPhones come in M3."
+// AddPhoneOlderNotYet says "iPhone Mirroring isn't set up from this screen. Install the Pinky helper to connect an older iPhone."
 // in the language of msgs.
 //
-// Add phone › older iPhone: shown once the person picks a way to connect,
-// as neither works in this build yet. M3 is a milestone of the project.
+// Add phone › older iPhone, on a Mac: shown once the person picks iPhone
+// Mirroring, which this screen does not set up. It points them to the
+// helper, which does connect an older iPhone.
 func (msgs Messages) AddPhoneOlderNotYet() string {
 	return Catalog.Format(msgs.locale, "addPhoneOlderNotYet", nil)
+}
+
+// AddPhoneOlderPlugIn says "Plug the iPhone in with a cable. Pinky sets up the helper on the iPhone it finds, including one already in your list."
+// in the language the app shows.
+//
+// Add phone › older iPhone: the status line after the person chooses the
+// helper when no iPhone is connected, asking them to plug one in.
+func AddPhoneOlderPlugIn() string { return In(i18n.Locale()).AddPhoneOlderPlugIn() }
+
+// AddPhoneOlderPlugIn says "Plug the iPhone in with a cable. Pinky sets up the helper on the iPhone it finds, including one already in your list."
+// in the language of msgs.
+//
+// Add phone › older iPhone: the status line after the person chooses the
+// helper when no iPhone is connected, asking them to plug one in.
+func (msgs Messages) AddPhoneOlderPlugIn() string {
+	return Catalog.Format(msgs.locale, "addPhoneOlderPlugIn", nil)
 }
 
 // AddPhoneOlderTitle says "This iPhone needs one more step"
