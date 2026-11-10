@@ -38,6 +38,11 @@ func (a *app) view(c *mg.Context) {
 			}
 		})
 	})
+	// Leaving Add phone › older iPhone, or leaving that step, drops the
+	// choice so the next visit asks for the helper again.
+	if a.page != pageAddPhone || a.add.step != "iphone" {
+		a.add.leaveOlder()
+	}
 	a.telemetryDialogs(c)
 	a.updateDialogs(c)
 	a.shotDialog(c)

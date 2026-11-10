@@ -320,14 +320,27 @@ func (a *API) SetConnection(deviceID, way string) error {
 		return fmt.Errorf("connections: %w", driver.ErrUnsupported)
 	}
 	d.way = way
+	a.connSets = append(a.connSets, [2]string{deviceID, way})
 	if way == "wda" {
-		d.info.State, d.info.Detail = driver.StateNeedsSetup, "The WebDriverAgent helper is not installed on this iPhone. Install it once from Xcode, or choose another connection in Settings > Phones."
+		// As the iOS driver does when the helper is missing (inspectWDA):
+		// needs setup, install the helper.
+		d.info.State = driver.StateNeedsSetup
+		d.info.Setup = driver.SetupInstallHelper
+		d.info.Backend = ""
+		d.info.Detail = "The WebDriverAgent helper is not installed on this iPhone. Install it once from Xcode, or choose another connection in Settings > Phones."
 	} else {
-		d.info.State, d.info.Detail, d.info.Backend = driver.StateOnline, "", "coredevice"
+		d.info.State, d.info.Setup, d.info.Detail, d.info.Backend = driver.StateOnline, "", "", "coredevice"
 	}
 	a.mu.Unlock()
 	a.emit(gateway.Event{Kind: gateway.EventDevices, DeviceID: deviceID})
 	return nil
+}
+
+// ConnectionSets reports SetConnection calls, each id and way, in order.
+func (a *API) ConnectionSets() [][2]string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return append([][2]string(nil), a.connSets...)
 }
 
 // AgentStream is the agent's display while a task runs on a phone that

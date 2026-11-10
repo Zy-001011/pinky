@@ -103,6 +103,9 @@ func setStep(info *driver.Info, step driver.Info) {
 	if step.OSVersion != "" {
 		info.OSVersion = step.OSVersion
 	}
+	if step.Backend != "" {
+		info.Backend = step.Backend
+	}
 }
 
 // HostChecks implements the client's host check (gateway.HostChecks):
