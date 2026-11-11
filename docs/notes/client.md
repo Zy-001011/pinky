@@ -290,7 +290,7 @@ The trade-off: amber now leans orange and red leans vermilion, so amber and red 
 - The mirror shows ffmpeg test patterns (testsrc2 for the Pixel, testsrc in HEVC for the iPhone), not the prototype's drawn Dinely, Chatter and Tally screens. Targets and touch points are where those apps' buttons would be.
 - "Replay this demo" links are gone (the client is not a demo); the Demo menu restarts scenarios.
 - More phone controls: Record screen, Rotate and Background display are disabled (no API).
-- Add phone's Wi-Fi QR is a placeholder, since the gateway cannot start wireless pairing yet; the prototype's QR encoded nothing either. The older-iPhone choices say this build cannot set them up yet.
+- Add phone's Wi-Fi QR is a placeholder, since the gateway cannot start wireless pairing yet; the prototype's QR encoded nothing either. Add phone › older iPhone › Install the Pinky helper chooses the WebDriverAgent connection (`SetConnection` `"wda"`) and follows an iPhone already in the list; iPhone Mirroring is not set up from that screen, and on Windows and Linux it says it is Mac-only.
 - Activity's step thumbnails are the steps' screenshots where the gateway kept one, and the prototype's sketch otherwise; Watch replay is a slideshow of those screenshots, not a video.
 - Settings › Agents shows first-connection requests as the prototype does, and the same request is also a card in Needs you, so it can be answered from the phone screen and the floating panel.
 - The tray shows the number of waiting needs as its title on macOS.
@@ -476,3 +476,15 @@ An open view of an iPhone keeps its display stream running (`internal/driver/ios
 - Android tiles stay live: scrcpy runs with `power_on=false` and does not turn the screen on or keep it on, so the phone dozes and locks as usual, and Android shows no screen-sharing indicator for it.
 - `DeviceView.Streaming` needed no change in the gateway: once the tile lets go, the hub closes and the driver reports `Capturing` false after its idle stop. The fake now counts its open streams, so the demo's "streaming its screen" follows the mirrors too.
 - Tests: `TestTileStill`, `TestStillKeepsItsPicture`, `TestAllPhonesIPhoneStill` (real ffmpeg test streams: live while the iPhone's task runs, still and no stream after Stop, live on its page, still again on All phones, kept across another page). Not checked on a real iPhone.
+
+## Older iPhone helper (2026-11-10)
+
+Add phone › iPhone › Try an older iPhone used to stop at a note that the older-iPhone backends would ship in M3. The WebDriverAgent path was already in the driver. Choosing **Install the Pinky helper** now follows the iPhone with `iphoneFollowed` (a phone already in the list, not only one plugged in after the step opened), calls `setConnection` with `"wda"` once (`addState.oldSet`), and then:
+
+- no iPhone, or one that is offline: plug it in with a cable
+- helper missing (`SetupInstallHelper`, or the driver says it is not installed): the checkup's "WebDriverAgent isn't installed" words and **How to install it**, which opens the helper instructions
+- any other setup step: the same words as the iPhone steps (`setupWords`)
+- online through WebDriverAgent: ready, and **Done** opens the phone
+
+**Use iPhone Mirroring** does not mark the phone connected. On Windows and Linux it says mirroring is Mac-only and to choose the helper; on a Mac it says this screen does not set mirroring up. Back, Cancel, Done and leaving Add phone clear `old`, `oldPick` and `oldSet`. Tests: `TestAddOlderIPhoneHelper`, `TestAddOlderIPhoneHelperNeedsCable`, `TestAddOlderIPhoneMirror` in `ui/addolder_test.go`.
+

@@ -64,6 +64,15 @@ func (a *app) setConnection(d gateway.DeviceView, way string) {
 	if !ok || s.busy[id] {
 		return
 	}
+	// Add phone asks before Settings has read the choices, so the maps
+	// may not exist yet. A read of a nil map is fine; a write is not.
+	if s.busy == nil {
+		s.got = map[string]driver.Connections{}
+		s.at = map[string]time.Time{}
+		s.loading = map[string]bool{}
+		s.busy = map[string]bool{}
+		s.chosen = map[string]string{}
+	}
 	s.busy[id], s.chosen[id] = true, way
 	go func() {
 		err := cc.SetConnection(id, way)

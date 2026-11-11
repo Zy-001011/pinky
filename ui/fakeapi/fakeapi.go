@@ -126,7 +126,8 @@ type API struct {
 	pairings    []*pairing
 	pairProg    driver.PairingProgress // what the open QR pairings report
 	installs    []string
-	updates     []string // companion apps UpdateCompanion updated
+	connSets    [][2]string // SetConnection calls, id then way (round3.go)
+	updates     []string    // companion apps UpdateCompanion updated
 	noRecording bool
 	keepDays    int
 	unrecorded  map[string]bool // finished while recording was off
